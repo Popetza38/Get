@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="icon.png" />
+
+  <title>Good Eye Tech</title>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #f5f5f5;
+    }
+
+    .iframe-container {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+
+    .iframe-container iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+
+    /* รองรับมือถือ */
+    @media (max-width: 768px) {
+      .iframe-container {
+        height: 100dvh;
+      }
+    }
+
+    /* Fallback loading indicator */
+    .fallback-loader {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .fallback-loader.show {
+      display: flex;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #3498db;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="iframe-container">
+    <iframe
+      id="mainIframe"
+      src="https://script.google.com/macros/s/AKfycbzJR1hcgnc-n97QIvvjwDUGMuwbY3wkoQlQk2ltz7LjbNJmTOmmw-39sViWfZ7H54L5/exec"
+      allowfullscreen
+      loading="lazy">
+    </iframe>
+  </div>
+
+  <!-- Fallback loading indicator -->
+  <div class="fallback-loader" id="fallbackLoader">
+    <div class="spinner"></div>
+    <p>กำลังโหลด...</p>
+  </div>
+
+  <script>
+    (function() {
+      let loaderTimeout;
+      const iframe = document.getElementById('mainIframe');
+      const fallbackLoader = document.getElementById('fallbackLoader');
+      let isLoaded = false;
+
+      // Function to hide all loaders
+      function hideLoaders() {
+        if (isLoaded) return;
+        isLoaded = true;
+
+        if (typeof Swal !== 'undefined') {
+          Swal.close();
+        }
+        fallbackLoader.classList.remove('show');
+        clearTimeout(loaderTimeout);
+      }
+
+      // Function to show SweetAlert loader
+      function showSweetAlertLoader() {
+        if (typeof Swal !== 'undefined') {
+          Swal.fire({
+            title: 'กำลังโหลด...',
+            text: 'กรุณารอสักครู่',
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            didOpen: () => {
+              Swal.showLoading();
+            }
+          });
+        } else {
+          // Fallback to custom loader if SweetAlert is not available
+          fallbackLoader.classList.add('show');
+        }
+      }
+
+      // Function to show error message
+      function showError(message) {
+        hideLoaders();
+        if (typeof Swal !== 'undefined') {
+          Swal.fire({
+            icon: 'error',
+            title: 'เกิดข้อผิดพลาด',
+            text: message || 'ไม่สามารถโหลดเนื้อหาได้ กรุณาลองใหม่อีกครั้ง',
+            confirmButtonText: 'ลองใหม่'
+          }).then((result) => {
+            if (result.isConfirmed) {
+              location.reload();
+            }
+          });
+        } else {
+          alert(message || 'ไม่สามารถโหลดเนื้อหาได้ กรุณาลองใหม่อีกครั้ง');
+        }
+      }
+
+      // Show loader immediately
+      showSweetAlertLoader();
+
+      // Set timeout for loading (30 seconds)
+      loaderTimeout = setTimeout(() => {
+        if (!isLoaded) {
+          showError('การโหลดใช้เวลานานเกินไป กรุณาลองใหม่อีกครั้ง');
+        }
+      }, 30000);
+
+      // Handle iframe load
+      iframe.onload = function() {
+        hideLoaders();
+      };
+
+      // Handle iframe error
+      iframe.onerror = function() {
+        showError('ไม่สามารถโหลดเนื้อหาได้');
+      };
+
+      // Handle window load as backup
+      window.addEventListener('load', function() {
+        // Give iframe a bit more time after window load
+        setTimeout(() => {
+          if (!isLoaded) {
+            hideLoaders();
+          }
+        }, 2000);
+      });
+
+      // Handle visibility change (for mobile browsers)
+      document.addEventListener('visibilitychange', function() {
+        if (!document.hidden && !isLoaded) {
+          // Page became visible again, check if iframe loaded
+          setTimeout(() => {
+            if (!isLoaded) {
+              hideLoaders();
+            }
+          }, 1000);
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
