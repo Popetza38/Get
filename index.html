@@ -28,6 +28,8 @@
       width: 100vw;
       height: 100vh;
       position: relative;
+      opacity: 0;
+      animation: fadeIn 0.8s ease-in-out forwards;
     }
 
     .iframe-container iframe {
@@ -37,8 +39,47 @@
       display: block;
     }
 
-    /* รองรับมือถือ */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* รองรับมือถือและแท็บเล็ตขนาดเล็ก */
     @media (max-width: 768px) {
+      .iframe-container {
+        height: 100dvh;
+      }
+    }
+
+    /* รองรับหน้าจอขนาดเล็ก (mobile portrait) */
+    @media (max-width: 480px) {
+      .iframe-container {
+        height: 100dvh;
+      }
+    }
+
+    /* รองรับหน้าจอขนาดกลาง (tablet) */
+    @media (min-width: 769px) and (max-width: 1024px) {
+      .iframe-container {
+        height: 100vh;
+      }
+    }
+
+    /* รองรับหน้าจอขนาดใหญ่ (desktop) */
+    @media (min-width: 1025px) {
+      .iframe-container {
+        height: 100vh;
+      }
+    }
+
+    /* รองรับแนวนอนบนมือถือ */
+    @media (max-height: 500px) and (orientation: landscape) {
       .iframe-container {
         height: 100dvh;
       }
